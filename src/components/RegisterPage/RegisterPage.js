@@ -11,28 +11,32 @@ const RegisterPage = () => {
     formState: { errors },
     handleSubmit,
   } = useForm({ mode: 'onChange' });
-
-  const [errorFromSubmit, setErrorFromSubmit] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const password = useRef();
   password.current = watch('password');
 
   const onSubmit = async (data) => {
-    const auth = getAuth();
-    createUserWithEmailAndPassword(auth, data.email, data.password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        console.log(user);
-        // ...
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ..
-        console.log(errorCode);
-        console.log(errorMessage);
-      });
+    try {
+      setLoading(true);
+      const auth = getAuth();
+      createUserWithEmailAndPassword(auth, data.email, data.password)
+        .then((userCredential) => {
+          setLoading(false);
+          // Signed in
+          const user = userCredential.user;
+          console.log(user);
+          // ...
+        })
+        .catch((error) => {
+          setLoading(false);
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // ..
+          console.log(errorCode);
+          console.log(errorMessage);
+        });
+    } catch (error) {}
   };
 
   return (
@@ -93,7 +97,7 @@ const RegisterPage = () => {
           errors.password_confirm.type === 'validate' && (
             <p>입력하신 비밀번호와 일치하지 않습니다</p>
           )}
-        <input type='submit' />
+        <input type='submit' disabled={loading} />
       </form>
       <Link>이미 아이디가 있다면</Link>
     </div>
