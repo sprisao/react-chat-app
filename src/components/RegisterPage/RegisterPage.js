@@ -18,28 +18,21 @@ const RegisterPage = () => {
   password.current = watch('password');
 
   const onSubmit = async (data) => {
-    console.log(data);
     const auth = getAuth();
     createUserWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
+        console.log(user);
         // ...
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         // ..
+        console.log(errorCode);
+        console.log(errorMessage);
       });
-
-    // try {
-    //   let createdUser = await firebase
-    //     .auth()
-    //     .createUserWithEmailAndPassword(data.email, data.password);
-    //   console.log('createdUser', createdUser);
-    // } catch (error) {
-    //   console.log(error);
-    // }
   };
 
   return (
