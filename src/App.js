@@ -9,6 +9,10 @@ import RegisterPage from './components/RegisterPage/RegisterPage';
 import { getAuth } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
 
+import { useDispatch, useSelector } from 'react-redux';
+
+import { setUser } from './redux/actions/user_action';
+
 const firebaseConfig = {
   apiKey: 'AIzaSyCHxn1khBcymcH01prxtPh1zMFCzsdIjOQ',
   authDomain: 'bruch-chat-app.firebaseapp.com',
@@ -27,26 +31,30 @@ const auth = getAuth();
 
 function App() {
   let history = useHistory();
-  console.log('history', history);
-
+  let dispatch = useDispatch();
+  const isLoading = useSelector((state) => state.user.isLoading);
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
-      console.log('user', user);
+      // 로그인 상태를 Redux로 이동
       if (user) {
         history.push('/');
+        dispatch(setUser(user));
       } else {
-        history.push('/');
+        history.push('/login');
       }
     });
-  }, [history]);
+  }, []);
 
-  return (
-    <Switch>
-      <Route exact path='/' component={ChatPage} />
-      <Route exact path='/login' component={LoginPage} />
-      <Route exact path='/register' component={RegisterPage} />
-    </Switch>
-  );
+  if (isLoading) {
+    return <div className=''>..Loaing</div>;
+  } else
+    return (
+      <Switch>
+        <Route exact path='/' component={ChatPage} />
+        <Route exact path='/login' component={LoginPage} />
+        <Route exact path='/register' component={RegisterPage} />
+      </Switch>
+    );
 }
 
 export default App;
