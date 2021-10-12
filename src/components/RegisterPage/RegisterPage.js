@@ -1,8 +1,13 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth';
 import firebase from '../../firebase';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getDatabase, ref, set } from 'firebase/database';
 
 const RegisterPage = () => {
   const {
@@ -17,26 +22,46 @@ const RegisterPage = () => {
   password.current = watch('password');
 
   const onSubmit = async (data) => {
-    try {
-      setLoading(true);
-      const auth = getAuth();
-      createUserWithEmailAndPassword(auth, data.email, data.password)
-        .then((userCredential) => {
-          setLoading(false);
-          // Signed in
-          const user = userCredential.user;
-          console.log(user);
-          // ...
-        })
-        .catch((error) => {
-          setLoading(false);
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          // ..
-          console.log(errorCode);
-          console.log(errorMessage);
-        });
-    } catch (error) {}
+    setLoading(true);
+    const auth = getAuth();
+    createUserWithEmailAndPassword(auth, data.email, data.password)
+      .then((userCredential) => {
+        setLoading(false);
+        // Signed in
+        const user = userCredential.user;
+        console.log(user);
+        // ...
+      })
+      .catch((error) => {
+        setLoading(false);
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+        console.log(errorCode);
+        console.log(errorMessage);
+      });
+    updateProfile(auth.currentUser, {
+      displayName: data.name,
+      photoURL: 'https://example.com/jane-q-user/profile.jpg',
+    })
+      .then(() => {
+        console.log('profile updated!!');
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+        console.log(errorCode);
+        console.log(errorMessage);
+      });
+    function writeUserData(userId, name, email, imageUrl) {
+      const db = getDatabase();
+      set(ref(db, 'users/' + userId), {
+        username: name,
+        email: email,
+        profile_picture: imageUrl,
+      });
+    }
   };
 
   return (

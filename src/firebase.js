@@ -1,11 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
-
-import 'firebase/database';
-import 'firebase/storage';
-import 'firebase/auth';
-
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -14,6 +9,8 @@ import 'firebase/auth';
 const firebaseConfig = {
   apiKey: 'AIzaSyCHxn1khBcymcH01prxtPh1zMFCzsdIjOQ',
   authDomain: 'bruch-chat-app.firebaseapp.com',
+  databaseURL:
+    'https://bruch-chat-app-default-rtdb.asia-southeast1.firebasedatabase.app',
   projectId: 'bruch-chat-app',
   storageBucket: 'bruch-chat-app.appspot.com',
   messagingSenderId: '273949212893',
@@ -24,5 +21,3 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-
-export default initializeApp;
