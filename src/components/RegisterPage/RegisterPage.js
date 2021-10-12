@@ -1,13 +1,38 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import md5 from 'md5';
+
+// Import the functions you need from the SDKs you need
 import {
   getAuth,
   createUserWithEmailAndPassword,
   updateProfile,
 } from 'firebase/auth';
-import firebase from '../../firebase';
+import { initializeApp } from 'firebase/app';
+import { getAnalytics } from 'firebase/analytics';
 import { getDatabase, ref, set } from 'firebase/database';
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: 'AIzaSyCHxn1khBcymcH01prxtPh1zMFCzsdIjOQ',
+  authDomain: 'bruch-chat-app.firebaseapp.com',
+  databaseURL:
+    'https://bruch-chat-app-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId: 'bruch-chat-app',
+  storageBucket: 'bruch-chat-app.appspot.com',
+  messagingSenderId: '273949212893',
+  appId: '1:273949212893:web:fc1e66330dd6fc954d5b34',
+  measurementId: 'G-8Q2PZ2RJZD',
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const database = getDatabase(app);
 
 const RegisterPage = () => {
   const {
@@ -17,19 +42,22 @@ const RegisterPage = () => {
     handleSubmit,
   } = useForm({ mode: 'onChange' });
   const [loading, setLoading] = useState(false);
+  const [createdUser, setCreatedUser] = useState('');
 
   const password = useRef();
   password.current = watch('password');
 
   const onSubmit = async (data) => {
     setLoading(true);
+
+    // 인증 진행
     const auth = getAuth();
-    createUserWithEmailAndPassword(auth, data.email, data.password)
+    await createUserWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
         setLoading(false);
         // Signed in
-        const user = userCredential.user;
-        console.log(user);
+        setCreatedUser(userCredential.user);
+        console.log('사용자', createdUser);
         // ...
       })
       .catch((error) => {
@@ -40,9 +68,14 @@ const RegisterPage = () => {
         console.log(errorCode);
         console.log(errorMessage);
       });
-    updateProfile(auth.currentUser, {
+
+    // 추가 정보 업데이트
+
+    await updateProfile(auth.currentUser, {
       displayName: data.name,
-      photoURL: 'https://example.com/jane-q-user/profile.jpg',
+      photoURL: `https://gravatar.com/avatar/${md5(
+        createdUser.uid
+      )}?d=identicon`,
     })
       .then(() => {
         console.log('profile updated!!');
@@ -54,14 +87,13 @@ const RegisterPage = () => {
         console.log(errorCode);
         console.log(errorMessage);
       });
-    function writeUserData(userId, name, email, imageUrl) {
-      const db = getDatabase();
-      set(ref(db, 'users/' + userId), {
-        username: name,
-        email: email,
-        profile_picture: imageUrl,
-      });
-    }
+
+    const db = getDatabase();
+    await set(ref(db, 'users/' + createdUser.uid), {
+      username: data.name,
+      email: data.email,
+      profile_picture: createdUser.photoURL,
+    });
   };
 
   return (
@@ -123,8 +155,8 @@ const RegisterPage = () => {
             <p>입력하신 비밀번호와 일치하지 않습니다</p>
           )}
         <input type='submit' disabled={loading} />
+        <Link to='login'>이미 아이디가 있다면</Link>
       </form>
-      <Link>이미 아이디가 있다면</Link>
     </div>
   );
 };
