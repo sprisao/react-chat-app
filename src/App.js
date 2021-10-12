@@ -1,24 +1,14 @@
-import logo from './logo.svg';
-import './App.css';
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+
+import { Switch, Route, useHistory } from 'react-router-dom';
 
 import ChatPage from './components/ChatPage/ChatPage';
 import LoginPage from './components/LoginPage/LoginPage';
 import RegisterPage from './components/RegisterPage/RegisterPage';
-// Import the functions you need from the SDKs you need
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  updateProfile,
-} from 'firebase/auth';
-import { initializeApp } from 'firebase/app';
-import { getAnalytics } from 'firebase/analytics';
-import { getDatabase, ref, set } from 'firebase/database';
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+import { getAuth } from 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+
 const firebaseConfig = {
   apiKey: 'AIzaSyCHxn1khBcymcH01prxtPh1zMFCzsdIjOQ',
   authDomain: 'bruch-chat-app.firebaseapp.com',
@@ -33,18 +23,29 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const database = getDatabase(app);
+const auth = getAuth();
 
 function App() {
+  let history = useHistory();
+  console.log('history', history);
+
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      console.log('user', user);
+      if (user) {
+        history.push('/');
+      } else {
+        history.push('/');
+      }
+    });
+  }, [history]);
+
   return (
-    <Router>
-      <Switch>
-        <Route exact path='/' component={ChatPage} />
-        <Route exact path='/login' component={LoginPage} />
-        <Route exact path='/register' component={RegisterPage} />
-      </Switch>
-    </Router>
+    <Switch>
+      <Route exact path='/' component={ChatPage} />
+      <Route exact path='/login' component={LoginPage} />
+      <Route exact path='/register' component={RegisterPage} />
+    </Switch>
   );
 }
 

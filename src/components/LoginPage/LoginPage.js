@@ -3,22 +3,6 @@ import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { initializeApp } from 'firebase/app';
-
-const firebaseConfig = {
-  apiKey: 'AIzaSyCHxn1khBcymcH01prxtPh1zMFCzsdIjOQ',
-  authDomain: 'bruch-chat-app.firebaseapp.com',
-  databaseURL:
-    'https://bruch-chat-app-default-rtdb.asia-southeast1.firebasedatabase.app',
-  projectId: 'bruch-chat-app',
-  storageBucket: 'bruch-chat-app.appspot.com',
-  messagingSenderId: '273949212893',
-  appId: '1:273949212893:web:fc1e66330dd6fc954d5b34',
-  measurementId: 'G-8Q2PZ2RJZD',
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
 
 const LoginPage = () => {
   const {
