@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { MdTry } from 'react-icons/md';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Image from 'react-bootstrap/Image';
@@ -20,6 +20,14 @@ const UserPanel = () => {
       });
   };
 
+  const inputOpenImageRef = useRef();
+  const handleUploadImage = (e) => {
+    e.preventDefault();
+    console.log('파일올렸다', e);
+  };
+  const handleOpenImageRef = () => {
+    inputOpenImageRef.current.click();
+  };
   return (
     <div>
       <h3 style={{ color: 'white' }}>
@@ -40,11 +48,21 @@ const UserPanel = () => {
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            <Dropdown.Item href='#/action-1'>프로필 사진 변경</Dropdown.Item>
+            <Dropdown.Item onClick={handleOpenImageRef}>
+              프로필 사진 변경
+            </Dropdown.Item>
             <Dropdown.Item onClick={handleLogout}>로그아웃</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </div>
+
+      <input
+        type='file'
+        accept='image/jpeg, image/png'
+        ref={inputOpenImageRef}
+        style={{ display: 'none' }}
+        onChange={handleUploadImage}
+      />
     </div>
   );
 };
