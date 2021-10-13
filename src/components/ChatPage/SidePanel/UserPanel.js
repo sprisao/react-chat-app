@@ -3,9 +3,23 @@ import { MdTry } from 'react-icons/md';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Image from 'react-bootstrap/Image';
 import { useSelector } from 'react-redux';
+import { getAuth, signOut } from 'firebase/auth';
 
 const UserPanel = () => {
   const user = useSelector((state) => state.user.currentUser);
+
+  const handleLogout = () => {
+    const auth = getAuth();
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful.
+        console.log('로그아웃 되었습니다');
+      })
+      .catch((error) => {
+        // An error happened.
+      });
+  };
+
   return (
     <div>
       <h3 style={{ color: 'white' }}>
@@ -27,7 +41,7 @@ const UserPanel = () => {
 
           <Dropdown.Menu>
             <Dropdown.Item href='#/action-1'>프로필 사진 변경</Dropdown.Item>
-            <Dropdown.Item href='#/action-2'>로그아웃</Dropdown.Item>
+            <Dropdown.Item onClick={handleLogout}>로그아웃</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </div>

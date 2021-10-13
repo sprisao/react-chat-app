@@ -11,7 +11,7 @@ import { initializeApp } from 'firebase/app';
 
 import { useDispatch, useSelector } from 'react-redux';
 
-import { setUser } from './redux/actions/user_action';
+import { setUser, clearUser } from './redux/actions/user_action';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCHxn1khBcymcH01prxtPh1zMFCzsdIjOQ',
@@ -43,6 +43,7 @@ function App() {
         dispatch(setUser(user));
       } else {
         history.push('/login');
+        dispatch(clearUser(user));
       }
     });
   }, []);
