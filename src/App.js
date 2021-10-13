@@ -32,7 +32,9 @@ const auth = getAuth();
 function App() {
   let history = useHistory();
   let dispatch = useDispatch();
+
   const isLoading = useSelector((state) => state.user.isLoading);
+
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       // 로그인 상태를 Redux로 이동
