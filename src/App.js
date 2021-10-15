@@ -13,6 +13,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { setUser, clearUser } from './redux/actions/user_action';
 
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: 'AIzaSyCHxn1khBcymcH01prxtPh1zMFCzsdIjOQ',
   authDomain: 'bruch-chat-app.firebaseapp.com',
