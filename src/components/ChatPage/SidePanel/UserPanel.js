@@ -1,9 +1,12 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { MdTry } from 'react-icons/md';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Image from 'react-bootstrap/Image';
-import { useSelector } from 'react-redux';
-import { getAuth, signOut } from 'firebase/auth';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { setPhotoURL } from '../../../redux/actions/user_action';
+
+import { getAuth, signOut, updateProfile } from 'firebase/auth';
 import {
   getStorage,
   ref,
@@ -14,8 +17,10 @@ import {
 import mime from 'mime-types';
 
 const UserPanel = () => {
+  const [newURL, setNewURL] = useState('');
   const auth = getAuth();
   const user = auth.currentUser;
+  const dispatch = useDispatch();
 
   const handleLogout = () => {
     signOut(auth)
@@ -40,7 +45,7 @@ const UserPanel = () => {
     // 1. 'state_changed' observer, called any time the state changes
     // 2. Error observer, called on failure
     // 3. Completion observer, called on successful completion
-    uploadTask.on(
+    await uploadTask.on(
       'state_changed',
       (snapshot) => {
         // Observe state change events such as progress, pause, and resume
@@ -63,11 +68,24 @@ const UserPanel = () => {
       () => {
         // Handle successful uploads on complete
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log('File available at', downloadURL);
+          setNewURL(downloadURL);
+          dispatch(setPhotoURL(downloadURL));
         });
       }
     );
+    await updateProfile(auth.currentUser, {
+      photoURL: newURL,
+    })
+      .then(() => {
+        // Profile updated!
+        // ...
+      })
+      .catch((error) => {
+        // An error occurred
+        // ...
+      });
   };
+  console.log(user);
   const handleOpenImageRef = () => {
     inputOpenImageRef.current.click();
   };
