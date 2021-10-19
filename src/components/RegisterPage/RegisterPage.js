@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import md5 from 'md5';
+// import md5 from 'md5';
 
 // Import the functions you need from the SDKs you need
 import {
@@ -21,6 +21,7 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [createdUser, setCreatedUser] = useState('');
 
+  const auth = getAuth();
   const password = useRef();
   password.current = watch('password');
 
@@ -28,7 +29,6 @@ const RegisterPage = () => {
     setLoading(true);
 
     // 인증 진행
-    const auth = getAuth();
     await createUserWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
         setLoading(false);
@@ -50,9 +50,7 @@ const RegisterPage = () => {
 
     await updateProfile(auth.currentUser, {
       displayName: data.name,
-      photoURL: `https://gravatar.com/avatar/${md5(
-        createdUser.uid
-      )}?d=identicon`,
+      photoURL: 'no photo',
     })
       .then(() => {
         console.log('profile updated!!');
@@ -65,11 +63,12 @@ const RegisterPage = () => {
         console.log(errorMessage);
       });
 
+    const user = auth.currentUser;
     const db = getDatabase();
-    await set(ref(db, 'users/' + createdUser.uid), {
-      username: data.name,
-      email: data.email,
-      profile_picture: createdUser.photoURL,
+    await set(ref(db, 'users/' + user.uid), {
+      username: user.displayName,
+      email: user.email,
+      profile_picture: user.photoURL,
     });
   };
 

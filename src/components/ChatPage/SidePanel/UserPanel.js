@@ -9,10 +9,12 @@ import { setPhotoURL } from '../../../redux/actions/user_action';
 import { getAuth, signOut, updateProfile } from 'firebase/auth';
 import {
   getStorage,
-  ref,
   uploadBytesResumable,
   getDownloadURL,
+  ref as newRef,
 } from 'firebase/storage';
+
+import { getDatabase, update, ref as realtimeRef } from 'firebase/database';
 
 import mime from 'mime-types';
 
@@ -21,6 +23,7 @@ const UserPanel = () => {
   const auth = getAuth();
   const user = auth.currentUser;
   const dispatch = useDispatch();
+  const db = getDatabase();
 
   const handleLogout = () => {
     signOut(auth)
@@ -35,60 +38,63 @@ const UserPanel = () => {
 
   const inputOpenImageRef = useRef();
 
+  const handleOpenImageRef = () => {
+    inputOpenImageRef.current.click();
+  };
+
   const handleUploadImage = async (e) => {
     const file = e.target.files[0];
     const storage = getStorage();
-    const storageRef = ref(storage, `images/${user.uid}`);
-    const metadata = { contentType: mime.lookup(file.name) };
-    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
-    // Register three observers:
-    // 1. 'state_changed' observer, called any time the state changes
-    // 2. Error observer, called on failure
-    // 3. Completion observer, called on successful completion
+    const storageRef = newRef(storage, `images/${user.uid}`);
+    // const metadata = { contentType: mime.lookup(file.name) };
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    // 스토리지에 업로드
     await uploadTask.on(
       'state_changed',
       (snapshot) => {
-        // Observe state change events such as progress, pause, and resume
-        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         console.log('Upload is ' + progress + '% done');
-        switch (snapshot.state) {
-          case 'paused':
-            console.log('Upload is paused');
-            break;
-          case 'running':
-            console.log('Upload is running');
-            break;
-        }
       },
       (error) => {
-        // Handle unsuccessful uploads
+        console.log('업로드 안됨', error);
       },
       () => {
         // Handle successful uploads on complete
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setNewURL(downloadURL);
-          dispatch(setPhotoURL(downloadURL));
+
+          // 프로필 이미지 수정
         });
       }
     );
+
+    dispatch(setPhotoURL(newURL));
+
+    // currentUser의 photoURL 값 Update
     await updateProfile(auth.currentUser, {
       photoURL: newURL,
     })
       .then(() => {
-        // Profile updated!
-        // ...
+        console.log(newURL);
       })
       .catch((error) => {
         // An error occurred
         // ...
       });
+
+    // Realtime Database의 photoURL Update
+    const dbRef = realtimeRef(db, `users/${user.uid}/`);
+    update(dbRef, { profile_picture: newURL })
+      .then(() => {
+        console.log('업데이트 완료');
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   };
-  console.log(user);
-  const handleOpenImageRef = () => {
-    inputOpenImageRef.current.click();
-  };
+
   return (
     <div>
       <h3 style={{ color: 'white' }}>
